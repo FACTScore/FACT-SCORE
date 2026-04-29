@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FACT-Score Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #F8F9FB;
+            min-height: 100vh;
+            padding: 24px 16px;
+        }
+        .container { max-width: 520px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 28px; }
+        .header h1 { font-size: 28px; font-weight: 700; color: #111827; margin: 0 0 4px 0; letter-spacing: -0.02em; }
+        .header .subtitle { font-size: 13px; color: #6B7280; line-height: 1.4; }
+        .header .sub2 { font-size: 12px; color: #9CA3AF; margin-top: 4px; }
+        .header .badge { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #6B7280; text-transform: uppercase; margin-top: 8px; }
+        .card { background: #FFFFFF; border-radius: 14px; padding: 24px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04); margin-bottom: 20px; }
+        .field { margin-bottom: 20px; }
+        .field:last-child { margin-bottom: 4px; }
+        .field-label { display: block; font-size: 13px; font-weight: 600; color: #374151; letter-spacing: 0.02em; margin-bottom: 6px; }
+        .field-hint { font-weight: 400; color: #6B7280; font-size: 12px; margin-left: 6px; }
+        .btn-group { display: flex; flex-wrap: wrap; gap: 6px; }
+        .btn-option { padding: 8px 14px; border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; border: 1.5px solid #D1D5DB; background: #FFFFFF; color: #374151; font-weight: 400; transition: all 0.15s ease; line-height: 1.3; }
+        .btn-option:hover { border-color: #9CA3AF; }
+        .btn-option.active { border: 2px solid #1E3A5F; background: #1E3A5F; color: #FFFFFF; font-weight: 600; }
+        .input-wrap { position: relative; }
+        .input-wrap input { width: 100%; padding: 10px 50px 10px 14px; border-radius: 8px; border: 1.5px solid #D1D5DB; font-size: 15px; font-family: 'DM Mono', monospace; font-weight: 500; color: #111827; outline: none; background: #FAFAFA; }
+        .input-wrap input:focus { border-color: #1E3A5F; }
+        .input-unit { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 13px; color: #9CA3AF; }
+        .result-card { border-radius: 14px; padding: 24px 20px; margin-bottom: 20px; border-width: 2px; border-style: solid; }
+        .result-card.low { background: #E8F5EF; border-color: #0D7C4A; }
+        .result-card.moderate { background: #FFF8E7; border-color: #B8860B; }
+        .result-card.high { background: #FEF2F2; border-color: #B91C1C; }
+        .tier-badge { display: inline-block; padding: 6px 18px; border-radius: 20px; color: #FFFFFF; font-size: 14px; font-weight: 700; letter-spacing: 0.08em; }
+        .low .tier-badge { background: #0D7C4A; }
+        .moderate .tier-badge { background: #B8860B; }
+        .high .tier-badge { background: #B91C1C; }
+        .probability { font-size: 48px; font-weight: 700; font-family: 'DM Mono', monospace; line-height: 1; }
+        .low .probability { color: #0D7C4A; }
+        .moderate .probability { color: #B8860B; }
+        .high .probability { color: #B91C1C; }
+        .prob-label { font-size: 13px; color: #6B7280; margin-top: 4px; }
+        .risk-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: #E5E7EB; margin-bottom: 4px; }
+        .risk-bar .seg-low { width: 3.5%; background: #0D7C4A; }
+        .risk-bar .seg-mod { width: 6.5%; background: #B8860B; }
+        .risk-bar .seg-high { width: 90%; background: #DC2626; }
+        .risk-labels { display: flex; justify-content: space-between; font-size: 10px; color: #9CA3AF; }
+        .action-box { background: rgba(255,255,255,0.7); border-radius: 10px; padding: 12px 14px; margin-top: 16px; }
+        .action-title { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
+        .low .action-title { color: #0D7C4A; }
+        .moderate .action-title { color: #B8860B; }
+        .high .action-title { color: #B91C1C; }
+        .action-text { font-size: 13px; color: #374151; line-height: 1.5; }
+        .info-title { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #6B7280; text-transform: uppercase; margin-bottom: 10px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+        .info-row { display: flex; justify-content: space-between; font-size: 12px; }
+        .info-row .key { color: #6B7280; }
+        .info-row .val { font-weight: 600; color: #111827; font-family: 'DM Mono', monospace; }
+        .tier-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .tier-table th { padding: 6px 4px; text-align: left; color: #6B7280; font-weight: 600; font-size: 11px; border-bottom: 1.5px solid #E5E7EB; }
+        .tier-table td { padding: 7px 4px; border-bottom: 1px solid #F3F4F6; }
+        .tier-table .mono { font-family: 'DM Mono', monospace; }
+        .tier-table .bold { font-weight: 600; }
+        .footer { text-align: center; padding: 8px 0 24px; font-size: 10px; color: #9CA3AF; line-height: 1.6; }
+        .footer .citation { font-style: italic; }
+        .empty-state { text-align: center; padding: 32px 20px; }
+        .empty-state .icon { font-size: 32px; margin-bottom: 8px; }
+        .empty-state .text { font-size: 14px; color: #6B7280; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .animate { animation: fadeIn 0.3s ease; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>FACT-Score</h1>
+            <div class="subtitle">Facial-fracture Adverse-event Clinical Triage</div>
+            <div class="sub2">30-day surgical complication risk after operative facial fracture repair</div>
+            <div class="badge">Temporally Validated on NSQIP Data · AUC 0.797</div>
+        </div>
+
+        <div class="card">
+            <div class="field">
+                <label class="field-label">Operative Time <span class="field-hint">minutes</span></label>
+                <div class="input-wrap">
+                    <input type="number" id="optime" min="0" max="900" placeholder="e.g. 135">
+                    <span class="input-unit">min</span>
+                </div>
+            </div>
+            <div class="field">
+                <label class="field-label">Fracture Type</label>
+                <div class="btn-group" id="fracture-group">
+                    <button class="btn-option" data-value="mandible">Mandible</button>
+                    <button class="btn-option" data-value="zmc">ZMC</button>
+                    <button class="btn-option" data-value="orbital">Orbital</button>
+                    <button class="btn-option" data-value="lefort">LeFort</button>
+                    <button class="btn-option" data-value="multiple">Multiple</button>
+                </div>
+            </div>
+            <div class="field">
+                <label class="field-label">Wound Classification</label>
+                <div class="btn-group" id="wound-group">
+                    <button class="btn-option" data-value="1">Clean</button>
+                    <button class="btn-option" data-value="2">Clean/Contaminated</button>
+                    <button class="btn-option" data-value="3">Contaminated</button>
+                    <button class="btn-option" data-value="4">Dirty/Infected</button>
+                </div>
+            </div>
+            <div class="field">
+                <label class="field-label">ASA Classification</label>
+                <div class="btn-group" id="asa-group">
+                    <button class="btn-option" data-value="1">I</button>
+                    <button class="btn-option" data-value="2">II</button>
+                    <button class="btn-option" data-value="3">III</button>
+                    <button class="btn-option" data-value="4">IV</button>
+                </div>
+            </div>
+            <div class="field">
+                <label class="field-label">Current Smoker</label>
+                <div class="btn-group" id="smoke-group">
+                    <button class="btn-option active" data-value="no">No</button>
+                    <button class="btn-option" data-value="yes">Yes</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="result-container">
+            <div class="card empty-state">
+                <div class="icon">⚕</div>
+                <div class="text">Complete all fields to calculate the FACT-Score</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="info-title">Validation Summary</div>
+            <div class="info-grid">
+                <div class="info-row"><span class="key">Cohort</span><span class="val">n = 4,805</span></div>
+                <div class="info-row"><span class="key">Study Period</span><span class="val">2007 - 2022</span></div>
+                <div class="info-row"><span class="key">Temporal AUC</span><span class="val">0.797</span></div>
+                <div class="info-row"><span class="key">Temporal OR</span><span class="val">15.88</span></div>
+                <div class="info-row"><span class="key">Cal. Intercept</span><span class="val">-0.02</span></div>
+                <div class="info-row"><span class="key">Cal. Slope</span><span class="val">0.978</span></div>
+                <div class="info-row"><span class="key">Variables</span><span class="val">5</span></div>
+                <div class="info-row"><span class="key">C-statistic</span><span class="val">0.780</span></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="info-title">Risk Tiers</div>
+            <table class="tier-table">
+                <thead><tr><th>Tier</th><th>Threshold</th><th>Observed Rate</th><th>% Cohort</th></tr></thead>
+                <tbody>
+                    <tr><td class="bold" style="color:#0D7C4A">Low</td><td class="mono">&lt; 3.5%</td><td class="mono bold">1.8%</td><td>43.6%</td></tr>
+                    <tr><td class="bold" style="color:#B8860B">Moderate</td><td class="mono">3.5 - 10%</td><td class="mono bold">7.1%</td><td>35.8%</td></tr>
+                    <tr><td class="bold" style="color:#B91C1C">High</td><td class="mono">&gt;= 10%</td><td class="mono bold">22.8%</td><td>20.7%</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <div class="citation">Catic et al. The FACT Score: Development and Temporal Validation of a Clinical Risk Stratification Tool for 30-Day Complications After Operative Facial Fracture Repair, Journal of Craniofacial Surgery</div>
+            <div style="margin-top:4px">For research and clinical decision support only.</div>
+            <div>Not a substitute for clinical judgement.</div>
+        </div>
+    </div>
+
+    <script>
+        const COEF = {
+            intercept: -4.1225, optime: 0.0030,
+            fracture: { mandible: 0, lefort: -0.8664, multiple: -1.3636, orbital: -0.7105, zmc: -0.8977 },
+            wound: { "1": 0, "2": 0.5459, "3": 0.8494, "4": 1.3006 },
+            asa: { "1": 0, "2": 0.6086, "3": 0.9273, "4": 1.1293 },
+            smoke: { no: 0, yes: 0.3773 }
+        };
+        const TIERS = {
+            low: { label: "LOW RISK", color: "#0D7C4A", action: "Standard postoperative care. Outpatient follow-up at 1 week." },
+            moderate: { label: "MODERATE RISK", color: "#B8860B", action: "Enhanced monitoring. Next-day wound assessment. Consider 24h observation." },
+            high: { label: "HIGH RISK", color: "#B91C1C", action: "Extended observation (>=48h). Proactive wound surveillance. Complication counselling." }
+        };
+        let state = { optime: "", fracture: null, wound: null, asa: null, smoke: "no" };
+        document.querySelectorAll('.btn-group').forEach(g => {
+            g.querySelectorAll('.btn-option').forEach(b => {
+                b.addEventListener('click', () => {
+                    g.querySelectorAll('.btn-option').forEach(x => x.classList.remove('active'));
+                    b.classList.add('active');
+                    state[g.id.replace('-group', '')] = b.dataset.value;
+                    calculate();
+                });
+            });
+        });
+        document.getElementById('optime').addEventListener('input', e => { state.optime = e.target.value; calculate(); });
+        function calculate() {
+            const { optime, fracture, wound, asa, smoke } = state;
+            const c = document.getElementById('result-container');
+            if (optime === "" || !fracture || !wound || !asa) { c.innerHTML = '<div class="card empty-state"><div class="icon">⚕</div><div class="text">Complete all fields to calculate the FACT-Score</div></div>'; return; }
+            let lp = COEF.intercept + COEF.optime * Number(optime) + (COEF.fracture[fracture]||0) + (COEF.wound[wound]||0) + (COEF.asa[asa]||0) + (COEF.smoke[smoke]||0);
+            const p = Math.exp(lp)/(1+Math.exp(lp)), pct = p*100, tier = pct<3.5?"low":pct<10?"moderate":"high", t = TIERS[tier], m = Math.min(Math.max(pct,0.5),35);
+            c.innerHTML = `<div class="result-card ${tier} animate"><div style="text-align:center;margin-bottom:16px"><span class="tier-badge">${t.label}</span></div><div style="text-align:center;margin-bottom:16px"><div class="probability">${pct.toFixed(1)}%</div><div class="prob-label">predicted 30-day complication probability</div></div><div style="margin-bottom:16px"><div class="risk-bar"><div class="seg-low"></div><div class="seg-mod"></div><div class="seg-high"></div></div><div style="position:relative;height:20px;margin-top:2px"><div style="position:absolute;left:${m}%;transform:translateX(-50%);font-size:14px">&#9650;</div></div><div class="risk-labels"><span>0%</span><span>3.5%</span><span>10%</span><span>30%+</span></div></div><div class="action-box"><div class="action-title">Recommended Action</div><div class="action-text">${t.action}</div></div></div>`;
+        }
+    </script>
+</body>
+</html>
