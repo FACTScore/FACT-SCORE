@@ -35,7 +35,7 @@ This calculator runs entirely in the browser. No patient data is transmitted, st
 
 ## Citation
 
-Catic A, Karamitros G, Barbieri S. The FACT Score: Development and Temporal Validation of a Clinical Risk Stratification Tool for 30-Day Complications After Operative Facial Fracture Repair. *J Craniofac Surg.* 2026.
+Catic A et al. The FACT-Score: Development and Temporal Validation of a Clinical Risk Stratification Tool for 30-Day Complications After Operative Facial Fracture Repair. *under peer review* 2026.
 
 ## Disclaimer
 
